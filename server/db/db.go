@@ -22,7 +22,7 @@ func (d *Db) Conectar() *sql.DB {
 
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS cotacoes_dolar (
         id_cotacao INTEGER PRIMARY KEY AUTOINCREMENT,
-        valor_cotacao INTEGER NOT NULL
+        valor_cotacao VARCHAR(50) NOT NULL
     )`)
 
 	if err != nil {
