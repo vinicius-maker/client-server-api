@@ -52,6 +52,9 @@ func (b *BuscarCotacaoDolar) BuscaCotacaoDolarApi() (*ApiDolarStruct, error) {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return nil, fmt.Errorf("erro ao buscar cotacao por deadline do contexto: %w", err)
+		}
 		return nil, err
 	}
 	defer res.Body.Close()
