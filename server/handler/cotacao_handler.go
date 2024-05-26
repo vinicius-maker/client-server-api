@@ -27,15 +27,15 @@ func (c *CotacaoHandler) HandlerCotacaoDolar(w http.ResponseWriter, r *http.Requ
 
 	cotacaoDolar, err := c.BuscarCotacaoDolarService.BuscaCotacaoDolar()
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	errJson := json.NewEncoder(w).Encode(cotacaoDolar)
-	if errJson != nil {
+	if errJson := json.NewEncoder(w).Encode(cotacaoDolar); errJson != nil {
 		log.Printf("erro no encode JSON: %v", errJson)
 		return
 	}
