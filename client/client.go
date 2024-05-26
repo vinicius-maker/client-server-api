@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -20,10 +22,7 @@ type ApiDolarStruct struct {
 }
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
-	defer cancel()
-
-	cotacaoDolar, err := BuscaCotacaoDolar(ctx)
+	cotacaoDolar, err := BuscaCotacaoDolar()
 	if err != nil {
 		log.Fatalf("erro ao buscar a cotação do dólar: %v", err)
 	}
@@ -34,7 +33,10 @@ func main() {
 	}
 }
 
-func BuscaCotacaoDolar(ctx context.Context) (*ApiDolarStruct, error) {
+func BuscaCotacaoDolar() (*ApiDolarStruct, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+	defer cancel()
+
 	req, err := http.NewRequestWithContext(ctx, "GET", ServerUrl, nil)
 	if err != nil {
 		return nil, err
@@ -42,6 +44,9 @@ func BuscaCotacaoDolar(ctx context.Context) (*ApiDolarStruct, error) {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return nil, fmt.Errorf("erro ao requisitar a cotacao ao server: %w", err)
+		}
 		return nil, err
 	}
 	defer res.Body.Close()
